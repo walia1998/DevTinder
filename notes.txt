@@ -1,0 +1,2 @@
+# Will the sequence matter in router? 
+ - Ans: Yes sequence is matter in router. Order of writing a code play important role.
