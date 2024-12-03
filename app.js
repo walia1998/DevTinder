@@ -2,41 +2,25 @@ const express = require("express");
 
 const app = express();
 
+const { authAdmin, userAuth } = require("./src/middlewares/auth.js");
+
+//app.use("/admin", authAdmin);
 //Request Handler---> This will match all the HTTP method API Call to /Test
-app.get(
-  "/user",
-  (req, res, next) => {
-    console.log("Welcome");
-    //res.send("Welcome to test page of DevTinder");
-    next();
-  },
-  (req, res, next) => {
-    console.log("HAHHAHAHAH");
-    res.send("looogoggo");
-    next();
-  },
-  (req, res) => {
-    console.log("ojojoojojoj");
-    res.send("uiririri");
-  }
-);
 
-//This will only handle GET call to /user
+app.get("/admin/getAllUser", authAdmin, (req, res) => {
+  res.send("All data sent");
+});
+app.get("/admin/deleteAllData", authAdmin, (req, res) => {
+  res.send("Delete all the admin data");
+});
 
-// app.get("/user", (req,res) => {
-//     res.send({
-//         firstName : "Ashish",
-//         lastName : "Walia"
-//     });
-// })
+app.get("/user", userAuth, (req, res) => {
+  res.send("User data sent");
+});
 
-// app.post("/user", (req,res) => {
-//     //write code for save data in DB
-//   res.send("Successfully saved the data");
-// });
-// app.delete('/user', (req,res) => {
-//     res.send("successfully deleted the data");
-// })
+app.post("/user/login", (req, res) => {
+  res.send("User Logged in successfully");
+});
 
 //Port Listener
 app.listen(3000, () => {
