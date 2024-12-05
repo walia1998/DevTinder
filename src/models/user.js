@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
+
 
 const userSchema = new mongoose.Schema(
   {
@@ -18,6 +20,12 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       trim: true,
+
+      validate(value) {
+        if(!validator.isEmail(value)) {
+            throw new Error("Invalid email address: " + value)
+        }
+      }
     },
 
     password: {
@@ -25,6 +33,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       minLength: 8,
       maxLength: 50,
+      validate(value) {
+        if(!validator.isStrongPassword(value)) {
+            throw new Error("Enter A stong Password: " + value)
+        }
+      }
     },
 
     age: {
@@ -44,8 +57,12 @@ const userSchema = new mongoose.Schema(
     },
     photoUrl: {
       type: String,
-      default:
-        "https://www.google.com/imgres?imgurl=https%3A%2F%2Fstatic.vecteezy.com%2Fsystem%2Fresources%2Fthumbnails%2F035%2F857%2F779%2Fsmall_2x%2Fpeople-face-avatar-icon-cartoon-character-png.png&tbnid=Ntlb74PjSyik_M&vet=10CAgQxiAoCmoXChMI-Nnkqo-QigMVAAAAAB0AAAAAEA4..i&imgrefurl=https%3A%2F%2Fwww.vecteezy.com%2Ffree-png%2Fprofile&docid=M5OCFymUH1CGQM&w=400&h=400&itg=1&q=png%20profile%20picture&ved=0CAgQxiAoCmoXChMI-Nnkqo-QigMVAAAAAB0AAAAAEA4",
+      default: "https://example.com/default-profile.png",
+        validate(value) {
+            if(!validator.isURL(value)) {
+                throw new Error("Enter the Correct URL:" + value)
+            }
+        }
     },
     about: {
       type: String,

@@ -5,6 +5,7 @@ const connectDB = require("./src/config/database.js");
 const app = express();
 
 const User = require("./src/models/user.js");
+const validator = require("validator");
 
 app.use(express.json());
 
@@ -14,7 +15,7 @@ app.post("/signup", async (req, res) => {
     await user.save();
     res.send("User Added Successfully");
   } catch (error) {
-    res.status(400).send("Error saving the user:" + err.message);
+    res.status(400).send("Error saving the user:" + error.message);
   }
 });
 
@@ -55,11 +56,30 @@ app.get("/feed", async (req, res) => {
  */
 
 //Update a user detail of the user
-app.patch("/user", async (req, res) => {
-  const userId = req.body.userId;
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params?.userId;
   const data = req.body;
 
   try {
+    const ALLOWED_UPDATES = [
+      "gender",
+      "firstName",
+      "lastName",
+      "age",
+      "photoUrl",
+      "skills",
+      "password",
+    ];
+    const isUpdateAllowed = Object.keys(data).every((k) => 
+      ALLOWED_UPDATES.includes(k)
+    );
+    if (!isUpdateAllowed) {
+      throw new Error("update not allowed");
+    }
+
+    if (data?.skills.length > 12) {
+      throw new Error("Skills can't be add more than 12");
+    }
     await User.findByIdAndUpdate({ _id: userId }, data, { runValidator: true });
     res.send("User Update Successfully");
   } catch (error) {
