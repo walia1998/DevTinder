@@ -40,7 +40,8 @@ app.get("/feed", async (req, res) => {
 });
 
 //Delete a user from the database
-app.delete("/user", async (req, res) => {
+/**
+ * app.delete("/user", async (req, res) => {
   const userId = req.body.userId;
   try {
     //const user = await User.findByIdAndDelete(_id : userId); We can use this also.
@@ -50,6 +51,8 @@ app.delete("/user", async (req, res) => {
     res.status(400).send("Error saving the user:" + error.message);
   }
 });
+ * 
+ */
 
 //Update a user detail of the user
 app.patch("/user", async (req, res) => {
@@ -57,8 +60,20 @@ app.patch("/user", async (req, res) => {
   const data = req.body;
 
   try {
-    await User.findByIdAndUpdate({ _id: userId }, data);
+    await User.findByIdAndUpdate({ _id: userId }, data, { runValidator: true });
     res.send("User Update Successfully");
+  } catch (error) {
+    res.status(400).send("Something went wrong");
+  }
+});
+
+// Used DeleteMany fxm
+app.delete("/user", async (req, res) => {
+  const userId = req.body.userId;
+
+  try {
+    await User.deleteMany({ firstName: /Mayanu/ });
+    res.send("User Deleted");
   } catch (error) {
     res.status(400).send("Something went wrong");
   }
