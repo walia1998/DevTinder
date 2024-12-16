@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const { db } = require("../models/user");
+const { application } = require("express");
 
 const connectDB = async () => {
   await mongoose.connect(
@@ -7,8 +9,6 @@ const connectDB = async () => {
 };
 
 module.exports = connectDB;
-
-
 
 
 

@@ -8,6 +8,12 @@ const User = require("./src/models/user.js");
 const { validationSignupData } = require("./src/utils/validations.js");
 const bcrypt = require("bcrypt");
 
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+
+app.use(express.json());
+app.use(cookieParser());
+
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
@@ -42,9 +48,11 @@ app.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("Invalid credentials");
     }
-    const isPasswordValid = await bcrypt.compare( password, user.password );
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
-      res.send("Login Successfully");
+      const token = await jwt.sign({ _id: user._id }, "Dev@Tinder$34");
+      res.cookie("token", token);
+      res.send("Login successfully");
     } else {
       throw new Error("either emailId or password is incorrect ");
     }
@@ -52,6 +60,30 @@ app.post("/login", async (req, res) => {
     res.status(400).send("Error saving the user:" + error.message);
   }
 });
+
+app.get("/profile", async (req, res) => {
+  try {
+    const cookies = req.cookies;
+
+    const { token } = cookies;
+    if (!token) {
+      throw new Error("Invalid token");
+    }
+
+    const decodedMessage = await jwt.verify(token, "Dev@Tinder$34");
+
+    const { _id } = decodedMessage;
+
+    const user = await User.findById(_id );
+    if (!user) {
+      throw new Error("invalid user");
+    }
+    res.send(user);
+  } catch (error) {
+    res.status(400).send("Error saving the user:" + error.message);
+  }
+});
+
 app.get("/user", async (req, res) => {
   const userEmail = req.body._id;
   try {
@@ -66,8 +98,8 @@ app.get("/user", async (req, res) => {
 //Api - Feed API - GET /feed -get all the users from the database
 app.get("/feed", async (req, res) => {
   try {
-    await User.find({});
-    res.send(user);
+    const users = await User.find({});
+    res.send(users);
   } catch (error) {
     res.status(400).send("Error saving the user:" + err.message);
   }
